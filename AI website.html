@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Lead Generation</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+        body { font-family: 'Poppins', sans-serif; text-align: center; padding: 20px; background: black; color: white; overflow-x: hidden; }
+        .container { max-width: 800px; margin: auto; }
+        .features { display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 20px; }
+        .feature-item { display: flex; align-items: center; gap: 15px; background: rgba(255, 255, 255, 0.15); padding: 15px; border-radius: 10px; width: 80%; text-align: left; font-size: 18px; font-weight: 600; transition: transform 0.3s ease; }
+        .feature-item:hover { transform: scale(1.05); background: rgba(241, 240, 234, 0.3); }
+        .feature-icon { font-size: 26px; }
+        .popup { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); background: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 15px; text-align: center; box-shadow: 0px 0px 30px rgba(255, 75, 43, 1); animation: popupFadeIn 0.5s ease-in-out forwards; color: black; }
+        .popup.show { display: block; }
+        .popup p { font-size: 22px; font-weight: bold; color: black; }
+        .popup input { width: 85%; padding: 12px; margin: 12px 0; border-radius: 6px; border: 1px solid #ff416c; font-size: 16px; }
+        .popup button { background: linear-gradient(90deg, #d1bb79, #ff4b2b); color: white; border: none; padding: 14px 28px; font-size: 20px; border-radius: 10px; cursor: pointer; transition: 0.3s ease; }
+        .popup button:hover { transform: scale(1.1); box-shadow: 0 0 20px rgba(255, 75, 43, 1); }
+        .thank-you { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8); background: rgba(255, 255, 255, 0.95); padding: 30px; border-radius: 15px; text-align: center; box-shadow: 0px 0px 30px rgba(43, 255, 93, 1); animation: popupFadeIn 0.5s ease-in-out forwards; color: black; }
+        .thank-you.show { display: block; }
+        .thank-you p { font-size: 24px; font-weight: bold; color: black; }
+        .thank-you img { width: 100px; margin-top: 10px; }
+        @keyframes popupFadeIn {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dominate Your Market with AI-Powered Leads🔥🚀</h1>
+        <p>Experience cutting-edge automation and AI-driven outreach to capture 1000+ high-converting leads</p>
+        
+        <h2> Why Choose Us?</h2>
+        <div class="features">
+            <div class="feature-item"><span class="feature-icon">🚀</span> <span>Next-Level AI Outreach to connect with your dream clients.</span></div>
+            <div class="feature-item"><span class="feature-icon">🎯</span> <span>Laser-Targeted Leads that boost your sales effortlessly.</span></div>
+            <div class="feature-item"><span class="feature-icon">💰</span> <span>Explosive Conversions & Revenue Growth—Faster than ever.</span></div>
+            <div class="feature-item"><span class="feature-icon">⚡</span> <span>Save Time, Close Deals, and Automate Your Success.</span></div>
+        </div>
+        
+        <p>Ready to take your business to the next level?🚀</p>
+        
+        
+        
+        <div class="popup" id="popup">
+            <p> Get 1000+ Verified AI-Driven Leads🚀 </p>
+            <p> Enter Your Details Below: </p>
+            <input type="text" placeholder="Your Name" id="lead-name" required>
+            <input type="email" placeholder="Your Email" id="lead-email" required>
+            <input type="tel" placeholder="Your Contact Number" id="lead-contact" required>
+            <button onclick="submitLead()">Claim My Leads Now</button>
+        </div>
+        
+        <div class="thank-you" id="thank-you">
+            <p>🎉 Thank You, <span id="user-name"></span> 🚀</p>
+            <p>Your AI-powered leads are being processed. Stay tuned for amazing business growth🚀</p>
+            <img src="https://cdn-icons-png.flaticon.com/512/190/190411.png" alt="Success">
+        </div>
+    </div>
+    
+    <script>
+        function showPopup() {
+            document.getElementById("popup").classList.add("show");
+        }
+        function submitLead() {
+            let name = document.getElementById("lead-name").value;
+            let email = document.getElementById("lead-email").value;
+            let contact = document.getElementById("lead-contact").value;
+            if (name && email && contact) {
+                document.getElementById("popup").classList.remove("show");
+                document.getElementById("user-name").innerText = name;
+                document.getElementById("thank-you").classList.add("show");
+                setTimeout(() => { document.getElementById("thank-you").classList.remove("show"); }, 19000);
+            } else {
+                alert("⚠ Please fill in all fields correctly.");
+            }
+        }
+        setTimeout(showPopup, 7000);
+    </script>
+</body>
+</html>
