@@ -175,11 +175,6 @@
       dice2.style.transform = `rotateX(${r2.x + randomSpin2}deg) rotateY(${r2.y + randomSpin2}deg)`;
 
       setTimeout(() => {
-        // ✅ Mobile Vibration Feedback
-        if (navigator.vibrate) {
-          navigator.vibrate([60, 20, 60]);
-        }
-
         resultEl.textContent = `🎉 You got ${total}% OFF!`;
         resultEl.classList.add('show-result');
         diceArea.classList.add('disabled');
