@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Roll for Your Discount</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: radial-gradient(circle, #eaf1f7, #cbd9e3);
+      text-align: center;
+      padding: 60px 20px;
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    h1 {
+      font-size: 30px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 16px;
+      color: #555;
+    }
+
+    .dice-wrapper {
+      display: flex;
+      justify-content: center;
+      gap: 20px; /* Reduced spacing */
+      margin: 60px 0;
+      cursor: pointer;
+    }
+
+    .scene {
+      width: 120px;
+      height: 120px;
+      perspective: 800px;
+      position: relative;
+    }
+
+    .cube {
+      width: 100px;
+      height: 100px;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateX(0deg) rotateY(0deg);
+      transition: transform 1s ease-in-out, top 0.3s ease;
+      box-shadow: 0 30px 40px rgba(0, 0, 0, 0.2);
+      animation: bounce 0.3s ease forwards;
+    }
+
+    @keyframes bounce {
+      0% { top: -20px; box-shadow: 0 20px 30px rgba(0,0,0,0.15); }
+      100% { top: 0; box-shadow: 0 30px 40px rgba(0, 0, 0, 0.2); }
+    }
+
+    .face {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      background: white;
+      border: 2px solid #444;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 34px;
+      font-weight: bold;
+      backface-visibility: hidden;
+    }
+
+    .face1 { transform: rotateY(0deg) translateZ(50px); }
+    .face2 { transform: rotateY(180deg) translateZ(50px); }
+    .face3 { transform: rotateY(90deg) translateZ(50px); }
+    .face4 { transform: rotateY(-90deg) translateZ(50px); }
+    .face5 { transform: rotateX(90deg) translateZ(50px); }
+    .face6 { transform: rotateX(-90deg) translateZ(50px); }
+
+    .result {
+      font-size: 24px;
+      font-weight: bold;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 1s, transform 0.5s;
+    }
+
+    .show-result {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .disabled {
+      pointer-events: none;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎲 Tap the Dice to Reveal Your Discount</h1>
+  <p>Total of both dice = your discount (Max 10%)</p>
+
+  <div class="dice-wrapper" id="diceArea">
+    <div class="scene">
+      <div class="cube" id="dice1">
+        <div class="face face1">1</div>
+        <div class="face face2">2</div>
+        <div class="face face3">3</div>
+        <div class="face face4">4</div>
+        <div class="face face5">5</div>
+        <div class="face face6">6</div>
+      </div>
+    </div>
+    <div class="scene">
+      <div class="cube" id="dice2">
+        <div class="face face1">1</div>
+        <div class="face face2">2</div>
+        <div class="face face3">3</div>
+        <div class="face face4">4</div>
+        <div class="face face5">5</div>
+        <div class="face face6">6</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="result" id="result">Click the dice above to roll</div>
+
+  <script>
+    const dice1 = document.getElementById('dice1');
+    const dice2 = document.getElementById('dice2');
+    const resultEl = document.getElementById('result');
+    const diceArea = document.getElementById('diceArea');
+
+    const getRotation = (face) => {
+      switch (face) {
+        case 1: return { x: 0, y: 0 };
+        case 2: return { x: 0, y: 180 };
+        case 3: return { x: 0, y: -90 };
+        case 4: return { x: 0, y: 90 };
+        case 5: return { x: -90, y: 0 };
+        case 6: return { x: 90, y: 0 };
+      }
+    };
+
+    function rollDiceOnce() {
+      if (sessionStorage.getItem('discountRolled')) return;
+
+      let d1, d2, total;
+
+      do {
+        d1 = Math.floor(Math.random() * 6) + 1;
+        d2 = Math.floor(Math.random() * 6) + 1;
+        total = d1 + d2;
+      } while (
+        (d1 === 5 && d2 === 6) ||
+        (d1 === 6 && d2 === 5) ||
+        (d1 === 6 && d2 === 6) ||
+        total > 10
+      );
+
+      const r1 = getRotation(d1);
+      const r2 = getRotation(d2);
+      const randomSpin1 = 360 * (Math.floor(Math.random() * 4) + 1);
+      const randomSpin2 = 360 * (Math.floor(Math.random() * 4) + 1);
+
+      dice1.classList.remove('cube');
+      dice2.classList.remove('cube');
+      void dice1.offsetWidth; // reflow to restart animation
+      void dice2.offsetWidth;
+      dice1.classList.add('cube');
+      dice2.classList.add('cube');
+
+      dice1.style.transform = `rotateX(${r1.x + randomSpin1}deg) rotateY(${r1.y + randomSpin1}deg)`;
+      dice2.style.transform = `rotateX(${r2.x + randomSpin2}deg) rotateY(${r2.y + randomSpin2}deg)`;
+
+      setTimeout(() => {
+        // ✅ Mobile Vibration Feedback
+        if (navigator.vibrate) {
+          navigator.vibrate([60, 20, 60]);
+        }
+
+        resultEl.textContent = `🎉 You got ${total}% OFF!`;
+        resultEl.classList.add('show-result');
+        diceArea.classList.add('disabled');
+        sessionStorage.setItem('discountRolled', 'true');
+      }, 1000);
+    }
+
+    window.onload = () => {
+      if (sessionStorage.getItem('discountRolled')) {
+        diceArea.classList.add('disabled');
+        resultEl.textContent = '🎲 Discount already claimed!';
+        resultEl.classList.add('show-result');
+      }
+    };
+
+    diceArea.addEventListener('click', rollDiceOnce);
+  </script>
+
+</body>
+</html>
