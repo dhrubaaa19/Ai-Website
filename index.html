@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Scan Barcode</title>
+  <title>Multi Barcode Scanner</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
@@ -26,13 +26,17 @@
       width: 100%;
     }
     .result-section {
-      text-align: center;
       padding: 16px;
+      text-align: center;
+      background: #fff;
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
     }
-    #barcode-result {
-      font-size: 18px;
+    #scanned-list {
       color: #1565c0;
-      margin-bottom: 12px;
+      font-size: 16px;
+      margin: 10px 0;
+      max-height: 120px;
+      overflow-y: auto;
     }
     #next-btn {
       display: none;
@@ -43,6 +47,7 @@
       border-radius: 8px;
       font-size: 16px;
       cursor: pointer;
+      margin-top: 10px;
     }
     footer {
       background-color: #1565c0;
@@ -55,19 +60,22 @@
 </head>
 <body>
 
-  <header>Scan Barcode</header>
+  <header>Scan Barcodes</header>
 
   <div id="reader"></div>
 
   <div class="result-section">
-    <div id="barcode-result">Waiting for scan...</div>
+    <div id="scanned-list">No barcodes scanned yet.</div>
     <button id="next-btn" onclick="goToResult()">Next</button>
   </div>
 
-  <footer>Align barcode in the frame</footer>
+  <footer>Scan products one by one</footer>
 
   <script>
     const scanner = new Html5Qrcode("reader");
+    const scannedBarcodes = new Set(); // Use Set to prevent duplicates
+    const scannedListEl = document.getElementById("scanned-list");
+    const nextBtn = document.getElementById("next-btn");
 
     function beep() {
       const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -94,27 +102,36 @@
       }
     }
 
-    function goToResult() {
-      window.location.href = "result.html";
+    function updateScannedList() {
+      if (scannedBarcodes.size === 0) {
+        scannedListEl.textContent = "No barcodes scanned yet.";
+        nextBtn.style.display = "none";
+      } else {
+        scannedListEl.innerHTML = Array.from(scannedBarcodes)
+          .map(code => `<div>• ${code}</div>`)
+          .join('');
+        nextBtn.style.display = "inline-block";
+      }
     }
 
-    let lastScanned = "";
+    function goToResult() {
+      localStorage.setItem("scannedBarcodes", JSON.stringify(Array.from(scannedBarcodes)));
+      window.location.href = "result.html";
+    }
 
     scanner.start(
       { facingMode: "environment" },
       { fps: 10, qrbox: { width: 250, height: 150 } },
       (decodedText) => {
-        if (decodedText !== lastScanned) {
-          lastScanned = decodedText;
-          document.getElementById("barcode-result").textContent = decodedText;
-          localStorage.setItem("scannedBarcode", decodedText);
-          document.getElementById("next-btn").style.display = "inline-block";
+        if (!scannedBarcodes.has(decodedText)) {
+          scannedBarcodes.add(decodedText);
           beep();
+          updateScannedList();
           sendToBackend(decodedText);
         }
       },
       (errorMessage) => {
-        // Optional: log or ignore
+        // silent errors
       }
     );
   </script>
