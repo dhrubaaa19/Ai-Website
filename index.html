@@ -1,228 +1,123 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>ZustMeal</title>
+  <meta charset="UTF-8">
+  <title>Scan Barcode</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://unpkg.com/html5-qrcode"></script>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; touch-action: none; }
-    html, body {
-      height: 100%;
-      overflow: hidden;
+    body {
+      margin: 0;
       font-family: 'Segoe UI', sans-serif;
-      background: #000;
-    }
-
-    .container {
-      height: 200vh;
-      position: relative;
-      transition: transform 0.3s ease-out;
-    }
-
-    .section {
+      background-color: #f0f4f8;
+      display: flex;
+      flex-direction: column;
       height: 100vh;
-      width: 100%;
-      position: relative;
     }
-
-    .hero {
-      background: black;
+    header {
+      background-color: #1565c0;
       color: white;
-    }
-
-    .next {
-      background: #fff;
-      color: #111;
-      overflow: hidden;
-      padding: 20px;
-    }
-
-    video {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      top: 0;
-      left: 0;
-    }
-
-    .overlay {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-      z-index: 1;
-    }
-
-    .hero-content {
-      position: absolute;
-      bottom: 140px;
-      z-index: 2;
-      width: 100%;
+      padding: 16px;
+      font-size: 20px;
       text-align: center;
-      padding: 0 20px;
     }
-
-    .hero-logo {
-      font-size: 2rem;
-      font-weight: bold;
-    }
-
-    .hero-subheading {
-      font-size: 1.2rem;
-      margin-top: 0.5rem;
-      font-weight: 600;
-    }
-
-    .hero-description {
-      font-size: 1rem;
-      margin-top: 0.5rem;
-      min-height: 24px;
-    }
-
-    .swipe-image {
-      position: absolute;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 3;
-      width: 100px;
-      height: auto;
-      animation: bounce 1.5s infinite;
-    }
-
-    @keyframes bounce {
-      0%, 100% { transform: translateX(-50%) translateY(0); }
-      50% { transform: translateX(-50%) translateY(-10px); }
-    }
-
-    iframe {
+    #reader {
+      flex: 1;
       width: 100%;
-      height: 100%;
+    }
+    .result-section {
+      text-align: center;
+      padding: 16px;
+    }
+    #barcode-result {
+      font-size: 18px;
+      color: #1565c0;
+      margin-bottom: 12px;
+    }
+    #next-btn {
+      display: none;
+      background-color: #1976d2;
+      color: white;
+      padding: 10px 20px;
       border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    footer {
+      background-color: #1565c0;
+      color: white;
+      padding: 12px;
+      text-align: center;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
 
-<div id="container" class="container">
-  <!-- Hero Section -->
-  <div class="section hero">
-    <video autoplay muted loop playsinline preload="auto" poster="fallback.jpg">
-      <source src="Hero-Video.mp4" type="video/mp4" />
-    </video>
-    <div class="overlay"></div>
-    <div class="hero-content">
-     <h1 style="margin-bottom: 0.1rem;">
-        <span>Welcome to</span><br />
-        <img src="your-logo-url-here.png" style="height: 4rem; margin-top: 0.5rem;" />
-      </h1>
-      <div class="hero-description" id="typing-text"></div>
-    </div>
-    <img src="swipe-up.png" alt="Swipe Up" class="swipe-image" />
+  <header>Scan Barcode</header>
+
+  <div id="reader"></div>
+
+  <div class="result-section">
+    <div id="barcode-result">Waiting for scan...</div>
+    <button id="next-btn" onclick="goToResult()">Next</button>
   </div>
 
-  <!-- Revealed Page -->
-  <div class="section next">
-    <iframe src="loginpage.html" title="ZustMeal Page"></iframe>
-  </div>
-</div>
+  <footer>Align barcode in the frame</footer>
 
-<script>
-  // Typing Effect
-  const textElement = document.getElementById("typing-text");
-  const phrases = [
-    "Fast, fresh, and flavorful.",
-    "Home-cooked taste in every bite.",
-    "Meals that feel like home."
-  ];
-  let phraseIndex = 0, charIndex = 0, isDeleting = false;
+  <script>
+    const scanner = new Html5Qrcode("reader");
 
-  function type() {
-    const current = phrases[phraseIndex];
-    textElement.textContent = current.substring(0, charIndex);
+    function beep() {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(1000, ctx.currentTime);
+      gainNode.gain.setValueAtTime(0.1, ctx.currentTime);
+      oscillator.start();
+      oscillator.stop(ctx.currentTime + 0.1);
+    }
 
-    if (!isDeleting && charIndex < current.length) {
-      charIndex++;
-      setTimeout(type, 70);
-    } else if (isDeleting && charIndex > 0) {
-      charIndex--;
-      setTimeout(type, 40);
-    } else {
-      if (!isDeleting) {
-        isDeleting = true;
-        setTimeout(type, 1500);
-      } else {
-        isDeleting = false;
-        phraseIndex = (phraseIndex + 1) % phrases.length;
-        setTimeout(type, 300);
+    async function sendToBackend(barcode) {
+      try {
+        await fetch("https://your-backend.com/api/barcode", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ barcode })
+        });
+      } catch (err) {
+        console.error("Backend error:", err);
       }
     }
-  }
 
-  document.addEventListener("DOMContentLoaded", type);
-
-  // Dragging / Swiping Logic
-  const container = document.getElementById("container");
-  let startY = 0, currentY = 0, isDragging = false, translateY = 0, velocity = 0, lastY = 0, lastTime = 0;
-
-  function setTranslate(y, smooth = false) {
-    container.style.transition = smooth ? 'transform 0.3s ease-out' : 'none';
-    container.style.transform = `translateY(${-y}px)`;
-  }
-
-  function onStart(y) {
-    isDragging = true;
-    startY = y;
-    lastY = y;
-    lastTime = Date.now();
-  }
-
-  function onMove(y) {
-    if (!isDragging) return;
-    const delta = y - startY;
-    translateY = Math.min(Math.max(translateY - delta, 0), window.innerHeight);
-    setTranslate(translateY);
-    const now = Date.now();
-    velocity = (lastY - y) / (now - lastTime + 1);
-    lastY = y;
-    lastTime = now;
-    startY = y;
-  }
-
-  function onEnd() {
-    isDragging = false;
-
-    if (velocity > 0.3) {
-      translateY = 0;
-    } else if (velocity < -0.3) {
-      translateY = window.innerHeight;
-    } else {
-      translateY = translateY > window.innerHeight / 2 ? window.innerHeight : 0;
+    function goToResult() {
+      window.location.href = "result.html";
     }
 
-    setTranslate(translateY, true);
-  }
+    let lastScanned = "";
 
-  // Touch support
-  container.addEventListener('touchstart', e => onStart(e.touches[0].clientY));
-  container.addEventListener('touchmove', e => {
-    e.preventDefault();
-    onMove(e.touches[0].clientY);
-  }, { passive: false });
-  container.addEventListener('touchend', onEnd);
-
-  // Mouse support
-  container.addEventListener('mousedown', e => onStart(e.clientY));
-  container.addEventListener('mousemove', e => {
-    if (!isDragging) return;
-    onMove(e.clientY);
-  });
-  container.addEventListener('mouseup', onEnd);
-  container.addEventListener('mouseleave', () => {
-    if (isDragging) onEnd();
-  });
-</script>
+    scanner.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: { width: 250, height: 150 } },
+      (decodedText) => {
+        if (decodedText !== lastScanned) {
+          lastScanned = decodedText;
+          document.getElementById("barcode-result").textContent = decodedText;
+          localStorage.setItem("scannedBarcode", decodedText);
+          document.getElementById("next-btn").style.display = "inline-block";
+          beep();
+          sendToBackend(decodedText);
+        }
+      },
+      (errorMessage) => {
+        // Optional: log or ignore
+      }
+    );
+  </script>
 
 </body>
 </html>
